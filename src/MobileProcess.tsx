@@ -9,6 +9,7 @@ const useStyles = makeStyles((theme: Theme) =>
         root: {
             maxWidth: 400,
             flexGrow: 1,
+            height: "100%",
         },
         header: {
             display: 'flex',

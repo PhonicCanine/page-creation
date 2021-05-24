@@ -1,4 +1,5 @@
-import { Avatar, List, ListItem, ListItemAvatar, ListItemText } from "@material-ui/core";
+import { Avatar, Box, List, ListItem, ListItemAvatar, ListItemText } from "@material-ui/core";
+import { AutoSizer } from "react-virtualized";
 import { FixedSizeList, ListChildComponentProps } from 'react-window';
 
 class MobileSelectableListProps {
@@ -20,9 +21,18 @@ function renderRow(props: ListChildComponentProps) {
 
 function MobileSelectableList() {
     return (
-        <FixedSizeList height={1} width={1} itemSize={46} itemCount={200}>
-            {renderRow}
-        </FixedSizeList>
+      <Box width={1} height={1}>
+        <AutoSizer>
+          {(w) => {
+            return (
+              <FixedSizeList height={w.height} width={w.width} itemSize={46} itemCount={200}>
+                {renderRow}
+              </FixedSizeList>
+              );
+          }}
+        </AutoSizer>
+      </Box>
+        
     );
 }
 
