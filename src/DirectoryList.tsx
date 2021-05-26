@@ -32,12 +32,19 @@ return (
 );
 }
 
-function DirectoryList() {
-    const [currentTab,ChangeTab] = useState(0);
+interface DirectoryListProps {
+    selectedPractitioners?: Practitioner[];
+    selectedRoles?: Role[];
+    updateSelected: (roles: Role[], practitioners:Practitioner[]) => void;
+}
+
+function DirectoryList(props: DirectoryListProps) {
+    const [currentTab,ChangeTab] = useState((props.selectedPractitioners ?? []).length > 0 ? 1 : 0);
     const handleChange = (event: React.ChangeEvent<{}>, newValue: number) => {
         ChangeTab(newValue);
     };
-    const [selectedPractitioners, updateSelectedPractitioners] = useState([]);
+    const [selectedPractitioners, updateSelectedPractitioners] = useState<Practitioner[]>([]);
+    const [selectedRoles, updateSelectedRoles] = useState<Role[]>([]);
     return (
         <AutoSizer>
             {(size) => {
@@ -45,14 +52,28 @@ function DirectoryList() {
                     <div style={{height: size.height, width: size.width}}>
                         <Tabs value={currentTab} onChange={handleChange} aria-label="simple tabs example">
                             <Tab label="Roles" disabled={selectedPractitioners.length > 0}/>
-                            <Tab label="Practitioners" />
+                            <Tab label="Practitioners" disabled={selectedRoles.length > 0}/>
                         </Tabs>
                         <div style={{width: size.width, height: size.height - 80, position: "relative"}}>
                             <TabPanel index={0} value={currentTab}>
-                                <MobileSelectableList RowRenderFunction={renderRoleRow} SearchText="Search Roles" getCount={() => 100} getItemAtIndex={(idx) => new Role(`Role: ${idx}`, "Unit")}/>
+                                <MobileSelectableList 
+                                    RowRenderFunction={renderRoleRow} 
+                                    SearchText="Search Roles" getCount={() => 100} 
+                                    getItemAtIndex={(idx) => new Role(`Role: ${idx}`, "Unit")}
+                                    selectionUpdated={(s) => {updateSelectedRoles(s);  props.updateSelected(s,selectedPractitioners);}}
+                                    initialSelection={props.selectedRoles}
+                                    />
                             </TabPanel>
                             <TabPanel index={1} value={currentTab}>
-                                <MobileSelectableList RowRenderFunction={renderPractitionerRow} SearchText="Search for Practitioners" getCount={() => 100} getItemAtIndex={(idx) => new Practitioner(`Practitioner: ${idx}`, "Active")}/>
+                                <MobileSelectableList 
+                                    RowRenderFunction={renderPractitionerRow} 
+                                    SearchText="Search for Practitioners" 
+                                    getCount={() => 100} 
+                                    getItemAtIndex={(idx) => new Practitioner(`Practitioner: ${idx}`, "Active")}
+                                    selectionUpdated={(s) => {updateSelectedPractitioners(s); props.updateSelected(selectedRoles,s);}}
+                                    initialSelection={props.selectedPractitioners}
+                                    multiSelect={true}
+                                    />
                             </TabPanel>
                         </div>
                     </div>
