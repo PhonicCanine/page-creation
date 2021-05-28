@@ -11,6 +11,7 @@ import { FHIRPractitionerRole } from "./Model/FHIRPractitionerRole";
 import { FHIRPractitioner } from "./Model/FHIRPractitioner";
 import FHIRPaginatedList from "./Model/FHIRPaginatedList";
 import { AutoSizer } from "react-virtualized";
+import CompletedView from "./Completed";
 
 const useStyles: any = makeStyles((theme: Theme) =>
     createStyles({
@@ -56,6 +57,10 @@ function MobileProcess(){
     }
     const stepNames = ["Select a patient", "Select a recipient", "Select a due date"]
     const matches = !(useMediaQuery('(min-width:600px)'));
+
+    if (activeStep >= stepNames.length) {
+        return (<CompletedView/>)
+    }
 
     return (
         <AutoSizer>
@@ -164,7 +169,6 @@ function MobileProcess(){
                 )
             }}
         </AutoSizer>
-        
     );
 }
 export default MobileProcess;

@@ -192,7 +192,7 @@ function MobileSelectableList<T>(props: MobileSelectableListProps<T>) {
             value={query}
             InputProps={{startAdornment: (
               <InputAdornment position="start">
-                <Search />
+                <Search/>
               </InputAdornment>
             )
           }}
