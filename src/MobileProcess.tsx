@@ -1,4 +1,4 @@
-import { Button, MobileStepper, Paper, Typography } from "@material-ui/core";
+import { Button, MobileStepper, Paper, Step, StepLabel, Stepper, Typography, useMediaQuery } from "@material-ui/core";
 import { KeyboardArrowLeft, KeyboardArrowRight } from "@material-ui/icons";
 import { useState } from "react";
 import { createStyles, makeStyles, Theme, useTheme } from '@material-ui/core/styles';
@@ -54,11 +54,16 @@ function MobileProcess(){
         }
     }
     const stepNames = ["Select a patient", "Select a recipient", "Select a due date"]
+    const matches = !(useMediaQuery('(min-width:600px)'));
+
     return (
         <AutoSizer>
             {(size) => {
                 return (
                     <div className={classes.root} style={{width: size.width, height: size.height}}>
+                        
+                        {matches && 
+                        <>
                         <Paper square elevation={0} className={classes.header}>
                             <Typography>{stepNames[activeStep]}</Typography>
                         </Paper>
@@ -80,6 +85,15 @@ function MobileProcess(){
                                 </Button>
                             }
                         />
+                        </>}
+                        {!matches && <Stepper activeStep={activeStep} alternativeLabel style={{height: 56, paddingTop: 20}}>
+                            {stepNames.map((label) => (
+                            <Step key={label}>
+                                <StepLabel>{label}</StepLabel>
+                            </Step>
+                            ))}
+                        </Stepper>
+                        }
                             {
                                 (() => {
                                     let height = size.height - 50 - 66;
@@ -129,6 +143,22 @@ function MobileProcess(){
                                     }
                                 })()
                             }
+                        {!matches && 
+                            <div style={{position: "absolute", bottom: 0, right: 0}}>
+                                <div>
+                                    <Button
+                                        disabled={activeStep === 0}
+                                        onClick={handleBack}
+                                        className={classes.backButton}
+                                    >
+                                        Back
+                                    </Button>
+                                    <Button variant="contained" color="primary" onClick={handleNext} disabled={activeStep === stepNames.length || !(getNextButtonActive())}>
+                                        {activeStep === stepNames.length - 1 ? 'Finish' : 'Next'}
+                                    </Button>
+                                </div>
+                            </div>
+                        }
                 </div>
                 )
             }}

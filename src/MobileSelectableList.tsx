@@ -191,7 +191,7 @@ function MobileSelectableList<T>(props: MobileSelectableListProps<T>) {
             <FixedSizeList height={props.height - selectedListHeight - textboxSize} width={props.width} itemSize={listItemSize} itemCount={totalItems} onScroll={(x) => scrolled(x.scrollOffset)}>
               {Renderer}
             </FixedSizeList>
-            <div style={{background: "#eee", height: textboxSize, width: "100%", position: "absolute", overflow: "hidden"}}>
+            <div style={{height: textboxSize, width: "100%", position: "absolute", overflow: "hidden"}}>
               <TextField 
                 variant="outlined" 
                 color="secondary" 
