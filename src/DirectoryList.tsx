@@ -1,14 +1,15 @@
 import { Box, Tab, Tabs, Typography } from "@material-ui/core";
 import { useState } from "react";
 import { AutoSizer } from "react-virtualized";
+import { APIConnection } from "./API/APIConnection";
 import MobileSelectableList, { renderPractitionerRow, renderRoleRow } from "./MobileSelectableList";
-import Practitioner from "./Model/Practitioner";
-import Role from "./Model/Role";
+import {FHIRPractitioner} from "./Model/FHIRPractitioner";
+import {FHIRPractitionerRole} from "./Model/FHIRPractitionerRole";
 
 interface TabPanelProps {
-children?: React.ReactNode;
-index: any;
-value: any;
+    children?: React.ReactNode;
+    index: any;
+    value: any;
 }
 
 function TabPanel(props: TabPanelProps) {
@@ -33,54 +34,55 @@ return (
 }
 
 interface DirectoryListProps {
-    selectedPractitioners?: Practitioner[];
-    selectedRoles?: Role[];
-    updateSelected: (roles: Role[], practitioners:Practitioner[]) => void;
+    selectedPractitioners?: FHIRPractitioner[];
+    selectedRoles?: FHIRPractitionerRole[];
+    updateSelected: (roles: FHIRPractitionerRole[], practitioners:FHIRPractitioner[]) => void;
+    height: number;
+    width: number;
 }
+
+const tabbarheight = 48;
 
 function DirectoryList(props: DirectoryListProps) {
     const [currentTab,ChangeTab] = useState((props.selectedPractitioners ?? []).length > 0 ? 1 : 0);
     const handleChange = (event: React.ChangeEvent<{}>, newValue: number) => {
         ChangeTab(newValue);
     };
-    const [selectedPractitioners, updateSelectedPractitioners] = useState<Practitioner[]>([]);
-    const [selectedRoles, updateSelectedRoles] = useState<Role[]>([]);
+    const [selectedPractitioners, updateSelectedPractitioners] = useState<FHIRPractitioner[]>(props.selectedPractitioners ?? []);
+    const [selectedRoles, updateSelectedRoles] = useState<FHIRPractitionerRole[]>(props.selectedRoles ?? []);
     return (
-        <AutoSizer>
-            {(size) => {
-                return (
-                    <div style={{height: size.height, width: size.width}}>
-                        <Tabs value={currentTab} onChange={handleChange} aria-label="simple tabs example">
-                            <Tab label="Roles" disabled={selectedPractitioners.length > 0}/>
-                            <Tab label="Practitioners" disabled={selectedRoles.length > 0}/>
-                        </Tabs>
-                        <div style={{width: size.width, height: size.height - 80, position: "relative"}}>
-                            <TabPanel index={0} value={currentTab}>
-                                <MobileSelectableList 
-                                    RowRenderFunction={renderRoleRow} 
-                                    SearchText="Search Roles" getCount={() => 100} 
-                                    getItemAtIndex={(idx) => new Role(`Role: ${idx}`, "Unit")}
-                                    selectionUpdated={(s) => {updateSelectedRoles(s);  props.updateSelected(s,selectedPractitioners);}}
-                                    initialSelection={props.selectedRoles}
-                                    />
-                            </TabPanel>
-                            <TabPanel index={1} value={currentTab}>
-                                <MobileSelectableList 
-                                    RowRenderFunction={renderPractitionerRow} 
-                                    SearchText="Search for Practitioners" 
-                                    getCount={() => 100} 
-                                    getItemAtIndex={(idx) => new Practitioner(`Practitioner: ${idx}`, "Active")}
-                                    selectionUpdated={(s) => {updateSelectedPractitioners(s); props.updateSelected(selectedRoles,s);}}
-                                    initialSelection={props.selectedPractitioners}
-                                    multiSelect={true}
-                                    />
-                            </TabPanel>
-                        </div>
-                    </div>
-                );
-            }}
-        </AutoSizer>
-    )
+        <div style={{height: props.height, width: props.width}}>
+            <Tabs value={currentTab} onChange={handleChange} aria-label="simple tabs example">
+                <Tab label="Roles" disabled={selectedPractitioners.length > 0}/>
+                <Tab label="Practitioners" disabled={selectedRoles.length > 0}/>
+            </Tabs>
+            <div style={{width: props.width, height: props.height - tabbarheight, position: "relative"}}>
+                <TabPanel index={0} value={currentTab}>
+                    <MobileSelectableList 
+                        RowRenderFunction={renderRoleRow} 
+                        SearchText="Search Roles"
+                        selectionUpdated={(s) => {updateSelectedRoles(s);  props.updateSelected(s,selectedPractitioners);}}
+                        initialSelection={props.selectedRoles}
+                        query={APIConnection.getPractitionerRolesQuery}
+                        height={props.height - tabbarheight}
+                        width={props.width}
+                        />
+                </TabPanel>
+                <TabPanel index={1} value={currentTab}>
+                    <MobileSelectableList 
+                        RowRenderFunction={renderPractitionerRow} 
+                        SearchText="Search for Practitioners" 
+                        selectionUpdated={(s) => {updateSelectedPractitioners(s); props.updateSelected(selectedRoles,s);}}
+                        initialSelection={props.selectedPractitioners}
+                        multiSelect={true}
+                        query={APIConnection.getPractitionersQuery}
+                        height={props.height - tabbarheight}
+                        width={props.width}
+                        />
+                </TabPanel>
+            </div>
+        </div>
+    );
 }
 
 export default DirectoryList;

@@ -17,7 +17,10 @@ import MobileProcess from './MobileProcess';
 
 function App() {
   return (
-    <MobileProcess/>
+    <div style={{height: "100vh", width: "100vw"}}>
+      <MobileProcess/>
+    </div>
+    
   );
 }
 
