@@ -1,4 +1,5 @@
-import { Avatar, Box, List, ListItem, ListItemAvatar, ListItemText, ListItemProps, TextField, Divider, Typography, ListItemSecondaryAction, Checkbox, Grow, ListItemIcon, LinearProgress, CircularProgress } from "@material-ui/core";
+import { Avatar, Box, List, ListItem, ListItemAvatar, ListItemText, ListItemProps, TextField, Divider, Typography, ListItemSecondaryAction, Checkbox, Grow, ListItemIcon, LinearProgress, CircularProgress, InputAdornment } from "@material-ui/core";
+import { HorizontalSplit, Search } from "@material-ui/icons";
 import { Component, ComponentType, FunctionComponent, useEffect, useReducer, useState } from "react";
 import { AutoSizer, Size } from "react-virtualized";
 import { FixedSizeList, ListChildComponentProps } from 'react-window';
@@ -131,7 +132,11 @@ function MobileSelectableList<T>(props: MobileSelectableListProps<T>) {
   }
 
   function Renderer(p: ListChildComponentProps): JSX.Element {
-    let itm = items[p.index];
+    if (p.index < selected.length) {
+      return SelectedRenderer(p, p.index === selected.length - 1);
+    }
+    let idx = Math.max(p.index - selected.length,0);
+    let itm = items[idx];
     if (itm === undefined) {
       return (
         <ListItem button style={p.style} key={p.index}>
@@ -150,7 +155,7 @@ function MobileSelectableList<T>(props: MobileSelectableListProps<T>) {
     );
   }
 
-  function SelectedRenderer(p: ListChildComponentProps): JSX.Element {
+  function SelectedRenderer(p: ListChildComponentProps, last: boolean): JSX.Element {
     let itm = selected[p.index];
     let listItem = props.RowRenderFunction(itm);
     let children: JSX.Element[] = (listItem.props as any).children;
@@ -158,51 +163,54 @@ function MobileSelectableList<T>(props: MobileSelectableListProps<T>) {
     let newChildren = children.concat(<Checkbox edge="end" checked={true}/>);
     return (
       <ListItem button style={p.style} key={p.index} onClick={() => {handleClick(itm)();}} selected={getIsSelected(itm)}>
+        {last && <Divider style={{width: "100%", position: "absolute", bottom: 0, left: 0, borderTopWidth: 2}}/>}
         {newChildren}
       </ListItem>
     );
   }
 
-  function RenderSelectedList(width: number, height: number): JSX.Element {
-    if (selected.length === 0) return (<></>);
-    
-    return (
-      <Grow in={selected.length > 0}>
-        <div style={{marginBottom: 10, paddingBottom: 10}}>
-          <Typography variant="h6">
-            Selected
-          </Typography>
-          <FixedSizeList height={selectedListHeight} width={width} itemSize={listItemSize} itemCount={selected.length}>
-            {SelectedRenderer}
-          </FixedSizeList>
-          <Divider light />
-        </div>
-      </Grow>
-    );
+  function GetListCount() {
+    if (selected.length > 0) {
+      if (props.multiSelect) {
+        return totalItems + selected.length;
+      } else {
+        return selected.length;
+      }
+    }
+    return totalItems;
   }
-
-  const selectedListHeight = Math.min(listItemSize*selected.length,300);
 
   return (
       <div style={{height: props.height, width: props.width, margin: 0, padding: 0, position: "absolute"}}>
-        {RenderSelectedList(props.width, props.height)}
-        <Grow appear={false} in={props.multiSelect || selected.length === 0}>
+        <div style={{height: textboxSize, width: props.width * 0.9, left: props.width * 0.05, position: "absolute", overflow: "hidden"}}>
+          <TextField 
+            variant="standard" 
+            color="secondary" 
+            label={props.SearchText} 
+            style={{width: props.width, height: 50, margin: 0, padding: 0, top: 8, position: "relative"}} 
+            onChange={(evt) => updateQuery(evt.target.value)}
+            value={query}
+            InputProps={{startAdornment: (
+              <InputAdornment position="start">
+                <Search />
+              </InputAdornment>
+            )
+          }}
+          />
+        </div>
+        <div style={{position: "absolute", top: 58}}>
           <div>
-            <FixedSizeList height={props.height - selectedListHeight - textboxSize} width={props.width} itemSize={listItemSize} itemCount={totalItems} onScroll={(x) => scrolled(x.scrollOffset)}>
+            <FixedSizeList 
+              height={props.height - textboxSize} 
+              width={props.width} 
+              itemSize={listItemSize} 
+              itemCount={GetListCount()} 
+              onScroll={(x) => scrolled(x.scrollOffset)}
+            >
               {Renderer}
             </FixedSizeList>
-            <div style={{height: textboxSize, width: "100%", position: "absolute", overflow: "hidden"}}>
-              <TextField 
-                variant="outlined" 
-                color="secondary" 
-                label={props.SearchText} 
-                style={{width: props.width, height: 50, margin: 0, padding: 0, top: 8, position: "relative"}} 
-                onChange={(evt) => updateQuery(evt.target.value)}
-                value={query}
-              />
-            </div>
           </div>
-        </Grow>
+        </div>
       </div>
       );
 }

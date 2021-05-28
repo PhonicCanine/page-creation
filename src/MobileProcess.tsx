@@ -22,6 +22,7 @@ const useStyles: any = makeStyles((theme: Theme) =>
             alignItems: 'center',
             height: 50,
             paddingLeft: theme.spacing(4),
+            paddingRight: theme.spacing(4),
             backgroundColor: theme.palette.background.default
         },
     }),
@@ -65,7 +66,7 @@ function MobileProcess(){
                         {matches && 
                         <>
                         <Paper square elevation={0} className={classes.header}>
-                            <Typography>{stepNames[activeStep]}</Typography>
+                            <Typography textAlign="center" width="100%">{stepNames[activeStep].toUpperCase()}</Typography>
                         </Paper>
                         <MobileStepper
                             variant="dots"

@@ -46,6 +46,7 @@ function FinalStep(props: FinalStepProps) {
                         onChange={(changeEvent) => {const v = changeEvent.currentTarget.value;manageTaskDescription(v);}}
                         error={getError()}
                         helperText={getHelperText()}
+                        rows={8}
                     >
 
                     </TextField>
